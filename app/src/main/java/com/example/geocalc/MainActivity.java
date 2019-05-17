@@ -11,7 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.location.Location;
 
+import java.math.RoundingMode;
 import java.security.KeyStore;
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,9 +51,13 @@ public class MainActivity extends AppCompatActivity {
                 p2.setLongitude(p2LongVal);
 
                 float distance = p1.distanceTo(p2)/1000;
+                DecimalFormat df = new DecimalFormat("#.##");
+                df.setRoundingMode(RoundingMode.CEILING);
+                Double d = (double)distance;
+                System.out.println(df.format(d));
                 float bearing = p1.bearingTo(p2);
 
-                distanceText.setText(Float.toString(distance));
+                distanceText.setText(df.format(d));
                 bearingText.setText(Float.toString(bearing));
 
             }
