@@ -22,17 +22,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button calculate = (Button) findViewById(R.id.calcButton);
-        Button clear= (Button) findViewById(R.id.clearButton);
-        EditText p1Lat = (EditText) findViewById(R.id.p1Lat);
-        EditText p2Lat = (EditText) findViewById(R.id.p1Long);
-        EditText p1Long = (EditText) findViewById(R.id.p2Lat);
-        EditText p2Long = (EditText) findViewById(R.id.p2Long);
-        TextView distanceText = (TextView) findViewById(R.id.distanceText);
-        TextView bearingText = (TextView) findViewById(R.id.bearingText);
+        Button calculate = findViewById(R.id.calcButton);
+        Button clear = findViewById(R.id.clearButton);
+        EditText p1Lat = findViewById(R.id.p1Lat);
+        EditText p2Lat = findViewById(R.id.p1Long);
+        EditText p1Long = findViewById(R.id.p2Lat);
+        EditText p2Long = findViewById(R.id.p2Long);
+        TextView distanceText = findViewById(R.id.distanceText);
+        TextView bearingText = findViewById(R.id.bearingText);
 
         calculate.setOnClickListener(x -> {
-            //todo check if empty
             try{
                 hideKeyboard(MainActivity.this);
 
@@ -40,25 +39,21 @@ public class MainActivity extends AppCompatActivity {
                 Double p1LongVal = Double.parseDouble(p2Lat.getText().toString());
                 Double p2LatVal = Double.parseDouble(p1Long.getText().toString());
                 Double p2LongVal = Double.parseDouble(p2Long.getText().toString());
-//            System.out.println(p1LatVal + p1LongVal + p2LatVal + p2LongVal);
 
-                Location p1 = new Location("");
-                Location p2 = new Location("");
+                Location p1 = new Location(""); p1.setLatitude(p1LatVal); p1.setLongitude(p1LongVal);
+                Location p2 = new Location(""); p2.setLatitude(p2LatVal); p2.setLongitude(p2LongVal);
 
-                p1.setLatitude(p1LatVal);
-                p1.setLongitude(p1LongVal);
-                p2.setLatitude(p2LatVal);
-                p2.setLongitude(p2LongVal);
-
-                float distance = p1.distanceTo(p2)/1000;
                 DecimalFormat df = new DecimalFormat("#.##");
                 df.setRoundingMode(RoundingMode.CEILING);
-                Double d = (double)distance;
-                System.out.println(df.format(d));
-                float bearing = p1.bearingTo(p2);
 
-                distanceText.setText(df.format(d));
-                bearingText.setText(Float.toString(bearing));
+                float distance = p1.distanceTo(p2)/1000;
+                Double d = (double) distance;
+
+                float bearing = p1.bearingTo(p2);
+                Double b = (double) bearing;
+
+                distanceText.setText("Distance: " + df.format(d));
+                bearingText.setText("Bearing: " + df.format(b));
 
             }
             catch(Exception e){
@@ -69,10 +64,8 @@ public class MainActivity extends AppCompatActivity {
         clear.setOnClickListener(x -> {
 
             hideKeyboard(MainActivity.this);
-            p1Lat.setText("");
-            p1Long.setText("");
-            p2Lat.setText("");
-            p2Long.setText("");
+            p1Lat.setText(""); p1Long.setText("");
+            p2Lat.setText(""); p2Long.setText("");
             bearingText.setText("Bearing: ");
             distanceText.setText("Distance: ");
 
