@@ -1,21 +1,25 @@
 package com.example.geocalc;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.location.Location;
 
 import java.math.RoundingMode;
-import java.security.KeyStore;
 import java.text.DecimalFormat;
 
-public class MainActivity extends AppCompatActivity {
+public class CalcActivity extends AppCompatActivity {
+
+    String distanceUnits = "Kilometers";
+    String bearingUnits = "Degrees";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +35,17 @@ public class MainActivity extends AppCompatActivity {
         TextView distanceText = findViewById(R.id.distanceText);
         TextView bearingText = findViewById(R.id.bearingText);
 
+        Intent payload = getIntent();
+        if (payload.hasExtra("distanceUnits")) {
+            distanceUnits = payload.getStringExtra("distanceUnits");
+        }
+        if (payload.hasExtra("bearingUnits")) {
+            bearingUnits = payload.getStringExtra("bearingUnits");
+        }
+
         calculate.setOnClickListener(x -> {
             try{
-                hideKeyboard(MainActivity.this);
+                hideKeyboard(CalcActivity.this);
 
                 Double p1LatVal = Double.parseDouble(p1Lat.getText().toString());
                 Double p1LongVal = Double.parseDouble(p2Lat.getText().toString());
@@ -49,11 +61,19 @@ public class MainActivity extends AppCompatActivity {
                 float distance = p1.distanceTo(p2)/1000;
                 Double d = (double) distance;
 
+                if (distanceUnits.equals("Miles")) {
+                    d = d * 0.621371;
+                }
+
                 float bearing = p1.bearingTo(p2);
                 Double b = (double) bearing;
 
-                distanceText.setText("Distance: " + df.format(d));
-                bearingText.setText("Bearing: " + df.format(b));
+                if (bearingUnits.equals("Mils")) {
+                    b = b * 17.777777777778;
+                }
+
+                distanceText.setText("Distance: " + df.format(d) + " " + distanceUnits);
+                bearingText.setText("Bearing: " + df.format(b) + " " + bearingUnits);
 
             }
             catch(Exception e){
@@ -62,8 +82,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         clear.setOnClickListener(x -> {
-
-            hideKeyboard(MainActivity.this);
+            hideKeyboard(CalcActivity.this);
             p1Lat.setText(""); p1Long.setText("");
             p2Lat.setText(""); p2Long.setText("");
             bearingText.setText("Bearing: ");
@@ -81,6 +100,21 @@ public class MainActivity extends AppCompatActivity {
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.settingsMenu) {
+            Intent intent = new Intent(CalcActivity.this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return false;
     }
 
 }

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">GeoCalc</string>
+    <string name="title_activity_settings">settingsActivity</string>
+    <string-array name="distance_settings_array">
+        <item>Kilometers</item>
+        <item>Miles</item>
+    </string-array>
+    <string-array name="bearing_settings_array">
+        <item>Degrees</item>
+        <item>Mils</item>
+    </string-array>
+    <string name="title_activity_outer_main">OuterMainActivity</string>
 </resources>
