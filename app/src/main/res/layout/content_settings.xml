@@ -2,7 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/distanceUnitsLabel"
+    android:id="@+id/SettingsView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -11,50 +11,41 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="164dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="32dp"
         android:text="Bearing Units: "
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.092"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
-        android:layout_height="15dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="80dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:text="Distance Units: "
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
         android:id="@+id/bearingSpinner"
-        android:layout_width="232dp"
+        android:layout_width="0dp"
         android:layout_height="29dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="164dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="32dp"
         android:entries="@array/bearing_settings_array"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.889"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/distanceSpinner"
+        app:layout_constraintStart_toStartOf="@+id/distanceSpinner"
+        app:layout_constraintTop_toBottomOf="@+id/distanceSpinner" />
 
     <Spinner
         android:id="@+id/distanceSpinner"
         android:layout_width="232dp"
         android:layout_height="29dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:entries="@array/distance_settings_array"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.889"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
