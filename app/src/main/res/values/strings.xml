@@ -10,4 +10,5 @@
         <item>Mils</item>
     </string-array>
     <string name="title_activity_outer_main">OuterMainActivity</string>
+    <string name="title_activity_history">HistoryActivity</string>
 </resources>

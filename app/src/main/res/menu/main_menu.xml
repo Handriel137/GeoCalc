@@ -5,5 +5,8 @@
     <item
         android:id="@+id/settingsMenu"
         android:title="Settings"
-        app:showAsAction="always" />
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/action_history"
+        android:title="History" />
 </menu>

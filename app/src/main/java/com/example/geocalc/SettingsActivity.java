@@ -30,8 +30,8 @@ public class SettingsActivity extends AppCompatActivity {
                 String bearingChoice = bearingSpinner.getSelectedItem().toString();
                 intent.putExtra("distanceUnits", distanceChoice);
                 intent.putExtra("bearingUnits", bearingChoice);
-//                intent.setFlags(intent.FLAG_ACTIVITY_NEW_TASK | intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                setResult(1,intent);
+                finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
