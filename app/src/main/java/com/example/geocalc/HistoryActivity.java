@@ -35,7 +35,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryFragmen
         Intent intent = new Intent();
         String[] vals = {item.origLat, item.origLng, item.destLat, item.destLng};
         intent.putExtra("item", vals);
-        setResult(CalcActivity.HISTORY_RESULT,intent);
+        setResult(RESULT_OK,intent);
         finish();
     }
 }

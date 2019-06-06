@@ -3,6 +3,7 @@ package com.example.geocalc;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,23 +17,29 @@ import android.widget.TextView;
 import com.example.geocalc.dummy.HistoryContent;
 
 import org.joda.time.DateTime;
+import org.parceler.Parcels;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class CalcActivity extends AppCompatActivity {
 
     String distanceUnits = "Kilometers";
     String bearingUnits = "Degrees";
-    public static int SETTINGS_RESULT= 1;
-    public static int HISTORY_RESULT = 2;
+    public static int SETTINGS_REQUEST = 1;
+    public static int HISTORY_REQUEST = 2;
+    private static int SEARCH_REQUEST = 313;
     EditText p1Lat;
     EditText p2Lat;
     EditText p1Long;
     EditText p2Long;
     TextView distanceText;
     TextView bearingText;
-
+    @BindView(R.id.searchButtton) Button searchButton;
 
     public void compute (){
         Intent payload = getIntent();
@@ -84,10 +91,17 @@ public class CalcActivity extends AppCompatActivity {
         }
     }
 
+    @OnClick(R.id.searchButtton)
+    public void search() {
+        Intent intent = new Intent(this, SearchActivity.class);
+        startActivityForResult(intent, SEARCH_REQUEST);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         Button calculate = findViewById(R.id.calcButton);
         Button clear = findViewById(R.id.clearButton);
@@ -110,6 +124,8 @@ public class CalcActivity extends AppCompatActivity {
             distanceText.setText("Distance: ");
 
         });
+
+
     }
 
     public static void hideKeyboard(Activity activity) {
@@ -129,17 +145,35 @@ public class CalcActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == SETTINGS_RESULT) {
-            this.bearingUnits = data.getStringExtra("bearingUnits");
-            this.distanceUnits = data.getStringExtra("distanceUnits");
-            this.compute();
-        } else if (resultCode == HISTORY_RESULT) {
-            String[] vals = data.getStringArrayExtra("item");
-            this.p1Lat.setText(vals[0]);
-            this.p1Long.setText(vals[1]);
-            this.p2Lat.setText(vals[2]);
-            this.p2Long.setText(vals[3]);
-            this.compute();  // code that updates the calcs.
+        System.out.println("No op");
+        if (requestCode == SETTINGS_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                this.bearingUnits = data.getStringExtra("bearingUnits");
+                this.distanceUnits = data.getStringExtra("distanceUnits");
+                this.compute();
+            }
+        } else if (requestCode == HISTORY_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                String[] vals = data.getStringArrayExtra("item");
+                this.p1Lat.setText(vals[0]);
+                this.p1Long.setText(vals[1]);
+                this.p2Lat.setText(vals[2]);
+                this.p2Long.setText(vals[3]);
+                this.compute();  // code that updates the calcs.
+            }
+        } else if (requestCode == SEARCH_REQUEST) {
+            if (data != null && data.hasExtra("LOCATION_LOOKUP")) {
+                if (resultCode == RESULT_OK) {
+                    Parcelable par = data.getParcelableExtra("LOCATION_LOOKUP");
+                    LocationLookup lu = Parcels.unwrap(par);
+                    System.out.println(lu.toString());
+                    this.p1Lat.setText(Double.toString(lu.origLat));
+                    this.p1Long.setText(Double.toString(lu.origLng));
+                    this.p2Lat.setText(Double.toString(lu.endLat));
+                    this.p2Long.setText(Double.toString(lu.endLng));
+                    this.compute();
+                }
+            }
         }
     }
 
@@ -148,11 +182,11 @@ public class CalcActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.settingsMenu) {
             Intent intent = new Intent(CalcActivity.this, SettingsActivity.class);
-            startActivityForResult(intent, SETTINGS_RESULT);
+            startActivityForResult(intent, SETTINGS_REQUEST);
             return true;
         } else if (item.getItemId() == R.id.action_history) {
             Intent intent = new Intent(CalcActivity.this, HistoryActivity.class);
-            startActivityForResult(intent, HISTORY_RESULT);
+            startActivityForResult(intent, HISTORY_REQUEST);
             return true;
         }
 

@@ -30,7 +30,7 @@ public class SettingsActivity extends AppCompatActivity {
                 String bearingChoice = bearingSpinner.getSelectedItem().toString();
                 intent.putExtra("distanceUnits", distanceChoice);
                 intent.putExtra("bearingUnits", bearingChoice);
-                setResult(1,intent);
+                setResult(RESULT_OK,intent);
                 finish();
             }
         });
