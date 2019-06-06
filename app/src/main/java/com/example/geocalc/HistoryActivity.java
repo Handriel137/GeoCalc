@@ -8,8 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.example.geocalc.dummy.HistoryContent;
-
 public class HistoryActivity extends AppCompatActivity implements HistoryFragment.OnListFragmentInteractionListener {
 
     @Override
@@ -30,10 +28,10 @@ public class HistoryActivity extends AppCompatActivity implements HistoryFragmen
     }
 
     @Override
-    public void onListFragmentInteraction(HistoryContent.HistoryItem item) {
+    public void onListFragmentInteraction(LocationLookup item) {
         System.out.println("Interact!");
         Intent intent = new Intent();
-        String[] vals = {item.origLat, item.origLng, item.destLat, item.destLng};
+        String[] vals = {Double.toString(item.origLat), Double.toString(item.origLng), Double.toString(item.endLat), Double.toString(item.endLng)};
         intent.putExtra("item", vals);
         setResult(RESULT_OK,intent);
         finish();

@@ -14,13 +14,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.geocalc.dummy.HistoryContent;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.parceler.Parcels;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,7 +47,32 @@ public class CalcActivity extends AppCompatActivity {
     EditText p2Long;
     TextView distanceText;
     TextView bearingText;
+    DatabaseReference topRef;
+    FirebaseDatabase dbref;
+    public static List<LocationLookup> allHistory;
     @BindView(R.id.searchButtton) Button searchButton;
+
+//    @Override
+//    public void onResume(){
+//        super.onResume();
+//        FirebaseDatabase dbRef = FirebaseDatabase.getInstance();
+//        topRef = dbRef.getReference("history");
+//    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        allHistory.clear();
+        topRef = FirebaseDatabase.getInstance().getReference("history");
+        topRef.addChildEventListener (chEvListener);
+        //topRef.addValueEventListener(valEvListener);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        topRef.removeEventListener(chEvListener);
+    }
 
     public void compute (){
         Intent payload = getIntent();
@@ -81,9 +114,19 @@ public class CalcActivity extends AppCompatActivity {
             distanceText.setText("Distance: " + df.format(d) + " " + distanceUnits);
             bearingText.setText("Bearing: " + df.format(b) + " " + bearingUnits);
             // Maybe check if we should make history?
-            HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(p1LatVal.toString(),
-                    p1LongVal.toString(), p2LatVal.toString(), p2LongVal.toString(), DateTime.now());
-            HistoryContent.addItem(item);
+
+            LocationLookup entry = new LocationLookup();
+            entry.setOrigLat(p1LatVal);
+            entry.setOrigLng(p1LongVal);
+            entry.setEndLat(p2LatVal);
+            entry.setEndLng(p2LongVal);
+            DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+            entry.setTimestamp(fmt.print(DateTime.now()));
+            topRef.push().setValue(entry);
+
+//            HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(p1LatVal.toString(),
+//                    p1LongVal.toString(), p2LatVal.toString(), p2LongVal.toString(), DateTime.now());
+//            HistoryContent.addItem(item);
 
         }
         catch(Exception e){
@@ -102,6 +145,7 @@ public class CalcActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        allHistory = new ArrayList<LocationLookup>();
 
         Button calculate = findViewById(R.id.calcButton);
         Button clear = findViewById(R.id.clearButton);
@@ -192,6 +236,40 @@ public class CalcActivity extends AppCompatActivity {
 
         return false;
     }
+    private ChildEventListener chEvListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            LocationLookup entry = (LocationLookup) dataSnapshot.getValue(LocationLookup.class);
+            entry._key = dataSnapshot.getKey();
+            allHistory.add(entry);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            LocationLookup entry = (LocationLookup) dataSnapshot.getValue(LocationLookup.class);
+            List<LocationLookup> newHistory = new ArrayList<LocationLookup>();
+            for (LocationLookup t : allHistory) {
+                if (!t._key.equals(dataSnapshot.getKey())) {
+                    newHistory.add(t);
+                }
+            }
+            allHistory = newHistory;
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
 
 }
 
