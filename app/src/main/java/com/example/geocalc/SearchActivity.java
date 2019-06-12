@@ -140,7 +140,7 @@ public class SearchActivity extends FragmentActivity implements DatePickerDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         lookup = new LocationLookup();
-        Places.initialize(getApplicationContext(), "KEY_GOES_HERE");
+        Places.initialize(getApplicationContext(), "PLACES_KEY");
         ButterKnife.bind(this);
     }
 }

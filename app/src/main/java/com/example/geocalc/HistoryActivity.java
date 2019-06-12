@@ -29,7 +29,6 @@ public class HistoryActivity extends AppCompatActivity implements HistoryFragmen
 
     @Override
     public void onListFragmentInteraction(LocationLookup item) {
-        System.out.println("Interact!");
         Intent intent = new Intent();
         String[] vals = {Double.toString(item.origLat), Double.toString(item.origLng), Double.toString(item.endLat), Double.toString(item.endLng)};
         intent.putExtra("item", vals);

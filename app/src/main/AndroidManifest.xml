@@ -14,7 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SearchActivity"></activity>
+        <service
+            android:name=".webservice.WeatherService"
+            android:exported="false"></service>
+
+        <activity android:name=".SearchActivity" />
         <activity
             android:name=".HistoryActivity"
             android:label="@string/title_activity_history"

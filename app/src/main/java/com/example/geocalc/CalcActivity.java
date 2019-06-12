@@ -1,19 +1,26 @@
 package com.example.geocalc;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Parcelable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.geocalc.webservice.WeatherService;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,6 +41,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.example.geocalc.webservice.WeatherService.BROADCAST_WEATHER;
+
 public class CalcActivity extends AppCompatActivity {
 
     String distanceUnits = "Kilometers";
@@ -47,17 +56,17 @@ public class CalcActivity extends AppCompatActivity {
     EditText p2Long;
     TextView distanceText;
     TextView bearingText;
+    @BindView(R.id.originWeather) ImageView originWeather;
+    @BindView(R.id.destinationWeather) ImageView destinationWeather;
+    @BindView(R.id.originTemp) TextView originTemp;
+    @BindView(R.id.origWeatherDesc) TextView origWeatherDesc;
+    @BindView(R.id.destTemp) TextView destTemp;
+    @BindView(R.id.destWeatherDesc) TextView destWeatherDesc;
     DatabaseReference topRef;
-    FirebaseDatabase dbref;
     public static List<LocationLookup> allHistory;
     @BindView(R.id.searchButtton) Button searchButton;
 
-//    @Override
-//    public void onResume(){
-//        super.onResume();
-//        FirebaseDatabase dbRef = FirebaseDatabase.getInstance();
-//        topRef = dbRef.getReference("history");
-//    }
+
 
     @Override
     public void onResume(){
@@ -65,17 +74,33 @@ public class CalcActivity extends AppCompatActivity {
         allHistory.clear();
         topRef = FirebaseDatabase.getInstance().getReference("history");
         topRef.addChildEventListener (chEvListener);
-        //topRef.addValueEventListener(valEvListener);
+        IntentFilter weatherFilter = new IntentFilter(BROADCAST_WEATHER);
+        LocalBroadcastManager.getInstance(this).registerReceiver(weatherReceiver, weatherFilter);
+        setWeatherViews(View.INVISIBLE);
     }
 
     @Override
     public void onPause(){
         super.onPause();
         topRef.removeEventListener(chEvListener);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(weatherReceiver);
+    }
+
+
+    private void setWeatherViews(int visible) {
+        originWeather.setVisibility(visible);
+        destinationWeather.setVisibility(visible);
+        originTemp.setVisibility(visible);
+        origWeatherDesc.setVisibility(visible);
+        destTemp.setVisibility(visible);
+        destWeatherDesc.setVisibility(visible);
     }
 
     public void compute (){
         Intent payload = getIntent();
+
+
+
         if (payload.hasExtra("distanceUnits")) {
             distanceUnits = payload.getStringExtra("distanceUnits");
         }
@@ -90,6 +115,9 @@ public class CalcActivity extends AppCompatActivity {
             Double p1LongVal = Double.parseDouble(p2Lat.getText().toString());
             Double p2LatVal = Double.parseDouble(p1Long.getText().toString());
             Double p2LongVal = Double.parseDouble(p2Long.getText().toString());
+
+            WeatherService.startGetWeather(this, Double.toString(p1LatVal), Double.toString(p1LongVal), "p1");
+            WeatherService.startGetWeather(this, Double.toString(p2LatVal), Double.toString(p2LongVal), "p2");
 
             Location p1 = new Location(""); p1.setLatitude(p1LatVal); p1.setLongitude(p1LongVal);
             Location p2 = new Location(""); p2.setLatitude(p2LatVal); p2.setLongitude(p2LongVal);
@@ -123,10 +151,6 @@ public class CalcActivity extends AppCompatActivity {
             DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
             entry.setTimestamp(fmt.print(DateTime.now()));
             topRef.push().setValue(entry);
-
-//            HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(p1LatVal.toString(),
-//                    p1LongVal.toString(), p2LatVal.toString(), p2LongVal.toString(), DateTime.now());
-//            HistoryContent.addItem(item);
 
         }
         catch(Exception e){
@@ -166,6 +190,7 @@ public class CalcActivity extends AppCompatActivity {
             p2Lat.setText(""); p2Long.setText("");
             bearingText.setText("Bearing: ");
             distanceText.setText("Distance: ");
+            setWeatherViews(View.INVISIBLE);
 
         });
 
@@ -236,6 +261,7 @@ public class CalcActivity extends AppCompatActivity {
 
         return false;
     }
+
     private ChildEventListener chEvListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -268,6 +294,30 @@ public class CalcActivity extends AppCompatActivity {
         @Override
         public void onCancelled(DatabaseError databaseError) {
 
+        }
+    };
+
+    private BroadcastReceiver weatherReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("WeatherBroadcast", "onReceive: " + intent);
+            Bundle bundle = intent.getExtras();
+            double temp = bundle.getDouble("TEMPERATURE");
+            String summary = bundle.getString("SUMMARY");
+            String icon = bundle.getString("ICON").replaceAll("-", "_");
+            String key = bundle.getString("KEY");
+            int resID = getResources().getIdentifier(icon , "drawable", getPackageName());
+            setWeatherViews(View.VISIBLE);
+            if (key.equals("p1"))  {
+                origWeatherDesc.setText(summary);
+                originTemp.setText(Double.toString(temp));
+                originWeather.setImageResource(resID);
+                originWeather.setVisibility(View.INVISIBLE);
+            } else {
+                destWeatherDesc.setText(summary);
+                destTemp.setText(Double.toString(temp));
+                destinationWeather.setImageResource(resID);
+            }
         }
     };
 
